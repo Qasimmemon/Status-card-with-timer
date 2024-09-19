@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './App.css';
 
-const UserStatusCard = () => {
+function App() {
+  // Theme state
+  const [theme, setTheme] = useState('light');
+
+  // User status card states
   const [users, setUsers] = useState([]);
   const [userName, setUserName] = useState('');
   const [creationTime, setCreationTime] = useState(null);
 
+  // Toggle between light and dark themes
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
+  // Apply the theme to the body class
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
+
+  // Handle user creation
   useEffect(() => {
     let hideTimeout;
 
     if (creationTime) {
-      // Hide the card after 10 minutes (600,000 milliseconds)
       hideTimeout = setTimeout(() => {
         setUsers((prevUsers) =>
           prevUsers.filter((user) => user.creationTime !== creationTime)
@@ -24,8 +39,7 @@ const UserStatusCard = () => {
 
   const handleCreateUser = () => {
     if (!userName.trim()) {
-      // Show toast notification if input is empty
-      toast.error('Please Fill All Instruction!');
+      toast.error('Please Fill All Instructions!');
       return;
     }
 
@@ -51,12 +65,17 @@ const UserStatusCard = () => {
 
   const formatCreationTime = (creationTime) => {
     const date = new Date(creationTime);
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toDateString(undefined, options); // Formats the creation date with day, month, date, and year
+    return date.toDateString(); // Formats the creation date with day, month, date, and year
   };
 
   return (
-    <div style={{ marginLeft: '500px' }}>
+    <div className={`app ${theme}`} style={{ marginLeft: '500px' }}>
+      {/* Theme Toggle Button */}
+      <button onClick={toggleTheme} style={{ color: 'red' }}>
+        Click to {theme === 'light' ? 'dark' : 'light'} mode
+      </button>
+
+      {/* User Status Card Form */}
       <div style={styles.form}>
         <div>
           <input
@@ -64,38 +83,64 @@ const UserStatusCard = () => {
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
             placeholder="Enter user name"
+            style={{
+              color: theme === 'dark' ? 'black' : 'black', // Conditionally apply text color
+            }}
           />
-          <button onClick={handleCreateUser}>Create User</button>
+          <button style={{
+              color: theme === 'dark' ? 'black' : 'black', // Conditionally apply text color
+            }} onClick={handleCreateUser}>Create User</button>
         </div>
       </div>
+
+      {/* User Cards */}
       {users.map((user, index) => (
         <div key={index} style={styles.card}>
           <div className="flex flex-col items-center pb-10">
-            <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
+            <h5
+              className="mb-1 text-xl font-medium"
+              style={{ color: theme === 'dark' ? 'white' : 'black' }} // Conditionally apply text color
+            >
               Status Card
             </h5>
             <br />
-            <span className="text-m text-gray-700 dark:text-gray-400">
+            <span
+              className="text-m"
+              style={{ color: theme === 'dark' ? 'white' : 'black' }} // Conditionally apply text color
+            >
               <p>Name: {user.name}</p>
             </span>
-            <span className="text-m text-gray-700 dark:text-gray-400">
+            <span
+              className="text-m"
+              style={{ color: theme === 'dark' ? 'white' : 'black' }} // Conditionally apply text color
+            >
               <p>Time Elapsed: {getElapsedTime(user.creationTime)}</p>
             </span>
-            <span className="text-m text-gray-700 dark:text-gray-400">
+            <span
+              className="text-m"
+              style={{ color: theme === 'dark' ? 'white' : 'black' }} // Conditionally apply text color
+            >
               <p>Created On: {formatCreationTime(user.creationTime)}</p>
             </span>
-            <span className="text-m text-gray-700 dark:text-gray-400">
-              <button onClick={() => handleDeleteUser(user.creationTime)} style={{ color: 'white', backgroundColor: 'red' }}>
+            <span
+              className="text-m"
+              style={{ color: theme === 'dark' ? 'white' : 'black' }} // Conditionally apply text color
+            >
+              <button
+                onClick={() => handleDeleteUser(user.creationTime)}
+                style={{ color: 'white', backgroundColor: 'red' }}
+              >
                 Delete
               </button>
             </span>
           </div>
         </div>
       ))}
+
       <ToastContainer />
     </div>
   );
-};
+}
 
 const styles = {
   form: {
@@ -111,17 +156,6 @@ const styles = {
     marginBottom: '20px',
     position: 'relative',
   },
-  deleteButton: {
-    position: 'fixed',
-    top: '10px',
-    right: '10px',
-    backgroundColor: '#f44336',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '5px 10px',
-    cursor: 'pointer',
-  },
 };
 
-export default UserStatusCard;
+export default App;
